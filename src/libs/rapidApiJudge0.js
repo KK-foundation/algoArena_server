@@ -3,11 +3,10 @@ import { myEnvironment } from "../config/env.js";
 
 // Language ID map
 const languageMap = {
-  PYTHON: 71,
-  JAVA: 62,
-  JAVASCRIPT: 63,
-  CPP: 54,
-  TYPESCRIPT: 74,
+  PYTHON: 109,
+  JAVA: 91,
+  JAVASCRIPT: 102,
+  CPP: 105,
 };
 
 // Get Judge0 language ID
