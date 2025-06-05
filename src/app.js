@@ -4,6 +4,7 @@ import path from "path";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { ErrorMiddleware } from "./utils/error.js";
+import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 
 //extra processing
 export const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +28,7 @@ import { potdRouter } from "./routes/potd.route.js";
 const allowedOrigins = [
   "http://localhost:5173",
   "https://algoarenaa.netlify.app",
-  "https://bbfch6vp-5000.inc1.devtunnels.ms/"
+  "https://bbfch6vp-5000.inc1.devtunnels.ms/",
 ];
 
 //middlewares
@@ -51,6 +52,9 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+// Add logger middleware
+app.use(loggerMiddleware);
 
 // routes
 app.use("/api/v1/auth", authRouter);
