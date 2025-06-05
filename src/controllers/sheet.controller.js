@@ -5,12 +5,18 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createSheet = asyncHandler(async (req, res) => {
-  const { name, description, visibility, tags } = req.body;
+  const { name, description, visibility, tags, problemIds } = req.body;
+  console.log("Requested to create sheet", req.body);
 
   const userId = req.user.id;
 
   if (!name) {
     throw new ApiError(404, "Pls provide the name of sheet");
+  }
+
+  // Validate problemIds if provided
+  if (problemIds && (!Array.isArray(problemIds) || problemIds.length === 0)) {
+    throw new ApiError(400, "Invalid problemIds - must be a non-empty array");
   }
 
   const sheet = await db.sheet.create({
@@ -22,6 +28,23 @@ export const createSheet = asyncHandler(async (req, res) => {
       tags,
     },
   });
+
+  // If problemIds are provided, associate them with the sheet
+  if (problemIds && problemIds.length > 0) {
+    const problemInSheet = await db.problemInSheet.createMany({
+      data: problemIds.map((problemId) => ({
+        sheetId: sheet.id,
+        problemId,
+      })),
+    });
+
+    if (!problemInSheet) {
+      throw new ApiError(
+        500,
+        "Sheet created but failed to add problems. Please add problems manually."
+      );
+    }
+  }
 
   const createdSheet = await db.sheet.findUnique({
     where: {
@@ -57,7 +80,8 @@ export const createSheet = asyncHandler(async (req, res) => {
       },
     },
   });
-  if (!sheet) {
+
+  if (!createdSheet) {
     throw new ApiError(500, "sheet not create pls try again");
   }
 
@@ -526,7 +550,7 @@ export const liked = asyncHandler(async (req, res) => {
 
   if (sheet.likes.includes(userId)) {
     // Dislike: remove userId from likes
-    updatedLikes = sheet.likes.filter(id => id !== userId);
+    updatedLikes = sheet.likes.filter((id) => id !== userId);
   } else {
     // Like: add userId to likes
     updatedLikes = [...sheet.likes, userId];
@@ -546,8 +570,5 @@ export const liked = asyncHandler(async (req, res) => {
     ? "Sheet disliked successfully"
     : "Sheet liked successfully";
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, updatedSheet, message));
+  return res.status(200).json(new ApiResponse(200, updatedSheet, message));
 });
-
