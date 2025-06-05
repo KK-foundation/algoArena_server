@@ -8,7 +8,7 @@ export const getAllUserProfiles = asyncHandler(async (req, res) => {
   const users = await db.user.findMany({
     take: 5,
     orderBy: {
-      xp: 'desc'
+      xp: "desc",
     },
     select: {
       id: true,
@@ -26,16 +26,20 @@ export const getAllUserProfiles = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, users, "All user profiles fetched successfully"));
+    .json(
+      new ApiResponse(200, users, "All user profiles fetched successfully")
+    );
 });
 
 export const getUserByUsername = asyncHandler(async (req, res) => {
   const { username } = req.body;
 
   if (!username) {
-    throw new ApiError(400, "Username is required or user must be authenticated");
-  } 
-
+    throw new ApiError(
+      400,
+      "Username is required or user must be authenticated"
+    );
+  }
 
   const user = await db.user.findUnique({
     where: {
@@ -83,7 +87,7 @@ export const getUserByUsername = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, user, "User profile fetched successfully"));
-})
+});
 
 export const uploadImage = asyncHandler(async (req, res) => {
   const imageLocalPath = req.file?.path;
@@ -138,7 +142,7 @@ export const uploadImage = asyncHandler(async (req, res) => {
 });
 
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, bio, links } = req.body;
+  const { name, bio, username } = req.body;
 
   const userId = req.user.id;
 
@@ -147,7 +151,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
       id: userId,
     },
   });
-  console.log("lsg");
   if (!existingUser) {
     throw new ApiError(404, "User not found");
   }
@@ -157,7 +160,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
     data: {
       name: name || existingUser.name,
       bio: bio || existingUser.bio,
-      links: links || existingUser.links,
+      username: username || existingUser.username,
     },
   });
 
@@ -167,21 +170,20 @@ export const updateProfile = asyncHandler(async (req, res) => {
 });
 
 export const getTotalSolved = asyncHandler(async (req, res) => {
-  const userId  = req.user.id;
+  const userId = req.user.id;
 
   const solvedProblems = await db.problem.findMany({
     where: {
       solvedBy: {
         some: {
-          userId: userId
-        }
+          userId: userId,
+        },
       },
     },
-    select:{
-      difficulty:true
-    }
+    select: {
+      difficulty: true,
+    },
   });
-
 
   const counts = {
     EASY: 0,
