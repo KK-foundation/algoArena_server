@@ -99,7 +99,7 @@ export const register = asyncHandler(async (req, res) => {
         localPassword: true,
         otp,
         token,
-        xp: "0",
+        xp: 0,
         tier: "Bronze",
         level: 1, // Set initial level
       },
