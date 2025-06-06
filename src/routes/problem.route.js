@@ -34,7 +34,7 @@ problemRouter.delete(
   checkAdmin,
   deleteProblem
 );
-problemRouter.get("/get-all-problems", authMiddleware, getAllProblems);
+problemRouter.get("/get-all-problems", getAllProblems);
 problemRouter.get("/get-problem/:id", authMiddleware, getProblemById);
 problemRouter.get(
   "/get-solved-problems",
