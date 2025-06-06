@@ -76,21 +76,27 @@ export function getLevelAndTier(totalXP) {
 }
 
 function awardBadges(user, meta) {
-  const badges = JSON.parse(user.badges || "[]");
+  try {
+    console.log({ user });
+    const badges = JSON.parse(user.badges || "[]");
 
-  if (meta.solvedNow && !badges.includes("first_blood")) {
-    badges.push("first_blood");
+    if (meta.solvedNow && !badges.includes("first_blood")) {
+      badges.push("first_blood");
+    }
+
+    if (meta.solvedTime.getHours() === 0 && !badges.includes("night_owl")) {
+      badges.push("night_owl");
+    }
+
+    if (user.currentStreak >= 7 && !badges.includes("consistency_king")) {
+      badges.push("consistency_king");
+    }
+
+    return badges;
+  } catch (error) {
+    console.log(error);
+    return [];
   }
-
-  if (meta.solvedTime.getHours() === 0 && !badges.includes("night_owl")) {
-    badges.push("night_owl");
-  }
-
-  if (user.currentStreak >= 7 && !badges.includes("consistency_king")) {
-    badges.push("consistency_king");
-  }
-
-  return badges;
 }
 
 // export const executeSubmit = asyncHandler(async (req, res) => {
