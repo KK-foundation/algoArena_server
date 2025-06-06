@@ -313,6 +313,7 @@ export const getAllProblems = asyncHandler(async (req, res) => {
       submission: true,
       solvedBy: true,
       problemsSheets: true,
+      companyTags: true
     },
   });
 
@@ -368,6 +369,7 @@ export const getProblemById = asyncHandler(async (req, res) => {
       submission: true,
       solvedBy: true,
       problemsSheets: true,
+      companyTags: true
     },
   });
 
@@ -409,6 +411,7 @@ export const getAllProblemsSolvedByUser = asyncHandler(async (req, res) => {
           userId: req.user.id,
         },
       },
+      companyTags: true
     },
   });
 
@@ -443,6 +446,7 @@ export const getAllProblemsCreatedByUser = asyncHandler(async (req, res) => {
       submission: true,
       solvedBy: true,
       problemsSheets: true,
+      companyTags: true
     },
   });
 
