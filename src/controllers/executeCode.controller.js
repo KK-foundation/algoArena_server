@@ -69,28 +69,28 @@ const LEVELS = [
   { level: 50, requiredXP: 26500, tier: "Grandmaster" },
 ];
 
-export function getLevelAndTier(totalXP){
-  const {level,tier} = [...LEVELS].reverse().find((l) => totalXP >= l.requiredXP) ?? LEVELS[0]
-  return {level,tier};
+export function getLevelAndTier(totalXP) {
+  const { level, tier } =
+    [...LEVELS].reverse().find((l) => totalXP >= l.requiredXP) ?? LEVELS[0];
+  return { level, tier };
 }
 
-function awardBadges(user,meta) {
+function awardBadges(user, meta) {
   const badges = JSON.parse(user.badges || "[]");
 
-  if(meta.solvedNow && !badges.includes("first_blood")){
+  if (meta.solvedNow && !badges.includes("first_blood")) {
     badges.push("first_blood");
   }
 
-  if(meta.solvedTime.getHours() === 0 && !badges.includes("night_owl")){
+  if (meta.solvedTime.getHours() === 0 && !badges.includes("night_owl")) {
     badges.push("night_owl");
   }
 
-  if(user.currentStreak >= 7 && !badges.includes("consistency_king")){
+  if (user.currentStreak >= 7 && !badges.includes("consistency_king")) {
     badges.push("consistency_king");
   }
 
   return badges;
-
 }
 
 // export const executeSubmit = asyncHandler(async (req, res) => {
@@ -98,8 +98,7 @@ function awardBadges(user,meta) {
 //   const { source_code, language_id, problemId } = req.body;
 //   const userId = req.user.id;
 
-
-//   // fetch user + problem 
+//   // fetch user + problem
 //   const user = await db.user.findUnique({
 //     where: {
 //       id: userId,
@@ -114,8 +113,7 @@ function awardBadges(user,meta) {
 //     throw new ApiError(404, "Problem not found");
 //   }
 
-
-//   // prepare test cases 
+//   // prepare test cases
 //   const privateInput = problem.privateTestcases.map((p) => p.input);
 //   const publicInput = problem.publicTestcases.map((p) => p.input);
 
@@ -170,7 +168,7 @@ function awardBadges(user,meta) {
 //     };
 //   });
 
-//   // save submission 
+//   // save submission
 //   const submission = await db.submission.create({
 //     data: {
 //       userId,
@@ -195,11 +193,10 @@ function awardBadges(user,meta) {
 //     },
 //   });
 
-//   // Xp / tier / badge logic 
+//   // Xp / tier / badge logic
 //   const usedHint = user.hintsUsed?.includes(problemId);
 //   const usedEditorial = user.editorialUsed?.includes(problemId);
 //   const eligibleForXP = allPassed && !usedHint && !usedEditorial;
-
 
 //   if (allPassed) {
 //     await db.problemSolved.upsert({
@@ -227,7 +224,7 @@ function awardBadges(user,meta) {
 //     });
 
 //     const potd = await db.potd.findFirst({
-      
+
 //     })
 
 //     await db.user.update({
@@ -274,7 +271,6 @@ function awardBadges(user,meta) {
 //     where: { userId, date: { gte: startOfYesterday, lte: endOfYesterday } },
 //   });
 
-
 //  if (yGrid) {
 //     await db.user.update({
 //       where: { id: userId },
@@ -319,8 +315,6 @@ function awardBadges(user,meta) {
 //     },
 //   });
 
-  
-
 //   return res
 //     .status(200)
 //     .json(
@@ -328,24 +322,24 @@ function awardBadges(user,meta) {
 //     );
 // });
 
-export const executeSubmit = asyncHandler(async(req, res) => {
-  const {source_code, language_id, problemId} = req.body;
+export const executeSubmit = asyncHandler(async (req, res) => {
+  const { source_code, language_id, problemId } = req.body;
   const userId = req.user.id;
 
   const [user, problem] = await Promise.all([
     db.user.findUnique({
-      where: {id: userId}
+      where: { id: userId },
     }),
     db.problem.findUnique({
-      where: {id: problemId},
-    })
+      where: { id: problemId },
+    }),
   ]);
 
-  if(!user){
-    throw new ApiError(404, 'User not found');
+  if (!user) {
+    throw new ApiError(404, "User not found");
   }
-  if(!problem){
-    throw new ApiError(404, 'Problem not found');
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
   }
 
   const todayPotdDate = new Date();
@@ -365,7 +359,7 @@ export const executeSubmit = asyncHandler(async(req, res) => {
   const stdin = [...privateInput, ...publicInput];
   const expected_outputs = [...privateOutput, ...publicOutput];
 
-  if(
+  if (
     !Array.isArray(stdin) ||
     stdin.length === 0 ||
     !Array.isArray(expected_outputs) ||
@@ -418,7 +412,7 @@ export const executeSubmit = asyncHandler(async(req, res) => {
         : null,
       compileOutput: detailedResults.some((r) => r.compile_output)
         ? JSON.stringify(detailedResults.map((r) => r.compile_output))
-        : null, 
+        : null,
       status: allPassed ? "Accepted" : "Wrong Answer",
       memory: detailedResults.some((r) => r.memory)
         ? JSON.stringify(detailedResults.map((r) => r.memory))
@@ -429,7 +423,7 @@ export const executeSubmit = asyncHandler(async(req, res) => {
     },
   });
 
-  if(allPassed) {
+  if (allPassed) {
     await db.problemSolved.upsert({
       where: {
         userId_problemId: {
@@ -444,13 +438,16 @@ export const executeSubmit = asyncHandler(async(req, res) => {
       },
     });
 
-    if(potd && potd.problemId === problemId) {
+    if (potd && potd.problemId === problemId) {
       const currentPotdRecord = await db.potd.findUnique({
         where: { id: potd.id },
-        select: {solvedUsers: true}
-      })
+        select: { solvedUsers: true },
+      });
 
-      if(currentPotdRecord && !currentPotdRecord.solvedUsers.includes(userId)) {
+      if (
+        currentPotdRecord &&
+        !currentPotdRecord.solvedUsers.includes(userId)
+      ) {
         await db.potd.update({
           where: { id: potd.id },
           data: {
@@ -461,17 +458,17 @@ export const executeSubmit = asyncHandler(async(req, res) => {
     }
 
     const currentUserForXP = await db.user.findUnique({
-      where: {id: userId}
+      where: { id: userId },
     });
 
     const usedHint = currentUserForXP.hintsUsed?.includes(problemId);
     const usedEditorial = currentUserForXP.editorialUsed?.includes(problemId);
     const eligibleForXP = allPassed && !usedHint && !usedEditorial;
 
-    if(eligibleForXP) {
+    if (eligibleForXP) {
       let gainedXP = XP_BY_DIFFICULTY[problem.difficulty] || 0;
 
-      if(potd && potd.problemId === problemId) {
+      if (potd && potd.problemId === problemId) {
         gainedXP += 100; // Extra XP for solving POTD
       }
 
@@ -494,8 +491,20 @@ export const executeSubmit = asyncHandler(async(req, res) => {
     }
 
     const todayForGrid = new Date();
-    const startOfTodayGrid = new Date(todayForGrid.getFullYear(), todayForGrid.getMonth(), todayForGrid.getDate());
-    const endOfTodayGrid = new Date(todayForGrid.getFullYear(), todayForGrid.getMonth(), todayForGrid.getDate(), 23, 59, 59, 999);
+    const startOfTodayGrid = new Date(
+      todayForGrid.getFullYear(),
+      todayForGrid.getMonth(),
+      todayForGrid.getDate()
+    );
+    const endOfTodayGrid = new Date(
+      todayForGrid.getFullYear(),
+      todayForGrid.getMonth(),
+      todayForGrid.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
 
     const existingGridEntry = await db.yearlyGrid.findFirst({
       where: {
@@ -516,8 +525,8 @@ export const executeSubmit = asyncHandler(async(req, res) => {
       });
 
       const currentUserForStreak = await db.user.findUnique({
-        where: {id: userId},
-        select: {currentStreak: true, maxStreak: true}
+        where: { id: userId },
+        select: { currentStreak: true, maxStreak: true },
       });
 
       const currentStreak = currentUserForStreak.currentStreak || 0;
@@ -525,8 +534,20 @@ export const executeSubmit = asyncHandler(async(req, res) => {
 
       const yesterdayForGrid = new Date();
       yesterdayForGrid.setDate(todayForGrid.getDate() - 1);
-      const startOfYesterdayGrid = new Date(yesterdayForGrid.getFullYear(), yesterdayForGrid.getMonth(), yesterdayForGrid.getDate());
-      const endOfYesterdayGrid = new Date(yesterdayForGrid.getFullYear(), yesterdayForGrid.getMonth(), yesterdayForGrid.getDate(), 23, 59, 59, 999);
+      const startOfYesterdayGrid = new Date(
+        yesterdayForGrid.getFullYear(),
+        yesterdayForGrid.getMonth(),
+        yesterdayForGrid.getDate()
+      );
+      const endOfYesterdayGrid = new Date(
+        yesterdayForGrid.getFullYear(),
+        yesterdayForGrid.getMonth(),
+        yesterdayForGrid.getDate(),
+        23,
+        59,
+        59,
+        999
+      );
 
       const yesterdayGridEntry = await db.yearlyGrid.findFirst({
         where: {
@@ -586,8 +607,10 @@ export const executeSubmit = asyncHandler(async(req, res) => {
   });
   return res
     .status(200)
-    .json(new ApiResponse(200, submissionWithTestCase, "Code executed successfully"));
-})
+    .json(
+      new ApiResponse(200, submissionWithTestCase, "Code executed successfully")
+    );
+});
 
 export const executeRun = asyncHandler(async (req, res) => {
   const { source_code, language_id, problemId } = req.body;
@@ -639,7 +662,6 @@ export const executeRun = asyncHandler(async (req, res) => {
   let allPassed = true;
 
   const detailedResults = results.map((result, i) => {
-    console.log(result);
     const stdout = result.stdout?.trim();
     const expected_output = expected_outputs[i]?.trim();
     const passed = stdout === expected_output;
@@ -647,6 +669,7 @@ export const executeRun = asyncHandler(async (req, res) => {
     if (!passed) allPassed = false;
 
     return {
+      stdin: stdin[i],
       testCase: i + 1,
       passed,
       stdout,
