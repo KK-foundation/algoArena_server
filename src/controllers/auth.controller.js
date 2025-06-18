@@ -389,7 +389,7 @@ export const logout = asyncHandler(async (req, res) => {
 // refresh token
 export const refreshToken = asyncHandler(async (req, res) => {
   const refresh_token =
-    req.headers.authorization?.split(" ")[1] || req.cookies?.refreshToken;
+    req.headers.authorization?.split(" ")[1] || req.cookies?.refresh_token;
 
   if (!refreshToken) {
     throw new ApiError(404, "User not found");
