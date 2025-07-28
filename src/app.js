@@ -29,6 +29,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://algoarenaa.netlify.app",
   "https://bbfch6vp-5000.inc1.devtunnels.ms/",
+  "https://algoarena.kunamix.com"
 ];
 
 //middlewares
